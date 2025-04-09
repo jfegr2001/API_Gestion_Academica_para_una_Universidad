@@ -48,6 +48,5 @@ services:
 # --------------------------------------------------------------------
 
 networks:
-  net_to-do-list:
+  net_ApiGestionAcademica:
     driver: bridge
-    name: net_ApiGestionAcademica
