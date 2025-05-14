@@ -1,0 +1,52 @@
+services:
+  db:
+    build:
+      context: ./MySQL
+      dockerfile: Dockerfile
+    container_name: database
+    restart: always
+    ports:
+      - 3307:3306
+    volumes:
+      - ./MySQL/volumes:/var/lib/mysql
+    hostname: APIGestionAcademica-DB
+    networks:
+      - net_ApiGestionAcademica
+    healthcheck:
+      test: ["CMD", "mysql", "-u", "user", "-proot"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+  # --------------------------------------------------------------------
+  # - The adminer is a tool for managing content in databases.
+  adminer:
+    image: adminer
+    container_name: adminer-ApiGestionAcademica
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - net_ApiGestionAcademica
+  # --------------------------------------------------------------------
+  # - fastapi refers to the container where the application backend will be stored.
+  fastapi:
+    build:
+      context: ./FastAPI
+      dockerfile: Dockerfile
+    container_name: backend
+    restart: always
+    volumes:
+      - ./FastAPI/app:/app
+    ports:
+      - "8000:80"
+    command: uvicorn main:app --reload --host 0.0.0.0 --port 80 # Recarga automática con --reload
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - net_ApiGestionAcademica
+# --------------------------------------------------------------------
+
+networks:
+  net_ApiGestionAcademica:
+    driver: bridge
