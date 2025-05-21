@@ -6,7 +6,7 @@ from typing import List, Optional
 from core.database import get_db
 from core.security import get_current_admin_user, get_current_user
 from models.user import User, UserRole
-from schemas.user import User as UserSchema, UserCreate, UserUpdate
+from schemas.user import UserSchema, UserCreate, UserUpdate
 from services.user import (
     create_user, 
     get_user, 
@@ -22,9 +22,28 @@ router = APIRouter(prefix="/users", tags=["users"])
 def create_new_user(
     user: UserCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_admin_user),
+    current_user: Optional[UserSchema] = None
 ):
+    user_count = db.query(User).count()
+    if user_count == 0:
+        admin_data = UserCreate(
+            email=user.email,
+            full_name=user.full_name,
+            document_id=user.document_id,
+            password=user.password,
+            role=UserRole.ADMIN,
+            is_active=True,
+            is_admin=True
+        )
+        return create_user(db=db, user=admin_data)
+
+    if not current_user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated", headers={"WWW-Authenticate": "Bearer"})
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Not enough permissions")
     return create_user(db=db, user=user)
+
+
 
 
 @router.get("/", response_model=List[UserSchema])

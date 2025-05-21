@@ -17,7 +17,7 @@ class Semester(Base):
     __tablename__ = "semesters"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
+    name = Column(String(100), index=True)
     start_date = Column(DateTime)
     end_date = Column(DateTime)
     is_active = Column(Boolean, default=True)
@@ -30,8 +30,8 @@ class Subject(Base):
     __tablename__ = "subjects"
 
     id = Column(Integer, primary_key=True, index=True)
-    code = Column(String, unique=True, index=True)
-    name = Column(String, index=True)
+    code = Column(String(20), unique=True, index=True)
+    name = Column(String(100), index=True)
     credits = Column(Integer)
     max_students = Column(Integer)
     
@@ -56,9 +56,9 @@ class Schedule(Base):
     teacher_id = Column(Integer, ForeignKey("users.id"))
     semester_id = Column(Integer, ForeignKey("semesters.id"))
     day_of_week = Column(Integer)  # 0=Monday, 6=Sunday
-    start_time = Column(String)  # Format: "HH:MM"
-    end_time = Column(String)  # Format: "HH:MM"
-    classroom = Column(String)
+    start_time = Column(String(5))  # Format: "HH:MM"
+    end_time = Column(String(5))  # Format: "HH:MM"
+    classroom = Column(String(50))
     
     subject = relationship("Subject", back_populates="schedules")
     teacher = relationship("User")
@@ -97,7 +97,7 @@ class Grade(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     enrollment_id = Column(Integer, ForeignKey("enrollments.id"))
-    evaluation_type = Column(String)  # "partial1", "partial2", "final", etc.
+    evaluation_type = Column(String(20))  # "partial1", "partial2", "final", etc.
     weight = Column(Float)  # Percentage weight of the grade (0.0 to 1.0)
     score = Column(Float)  # 0.0 to 5.0
     created_at = Column(DateTime, default=datetime.utcnow)

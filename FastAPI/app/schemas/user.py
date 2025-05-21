@@ -10,9 +10,15 @@ class UserBase(BaseModel):
     document_id: str
     role: UserRole
 
+    model_config = {
+        "from_attributes": True
+    }
+
 
 class UserCreate(UserBase):
     password: str
+    is_active: bool = True
+    is_admin: bool = False
 
 
 class UserUpdate(BaseModel):
@@ -20,17 +26,21 @@ class UserUpdate(BaseModel):
     full_name: Optional[str] = None
     password: Optional[str] = None
     is_active: Optional[bool] = None
-
-
-class User(UserBase):
-    id: int
-    is_active: bool
-    is_admin: bool
+    role: Optional[UserRole] = None
 
     model_config = {
         "from_attributes": True
     }
 
 
-class UserInDB(User):
+class UserSchema(UserBase):
+    id: int
+    is_active: bool
+    is_admin: bool
     hashed_password: str
+
+    model_config = {
+        "from_attributes": True
+    }
+
+
